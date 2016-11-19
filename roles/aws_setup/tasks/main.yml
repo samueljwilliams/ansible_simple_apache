@@ -1,0 +1,75 @@
+---
+
+- name: apache vpc
+  ec2_vpc:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_access_key }}"
+    region: "{{ aws_region }}"
+    state: present
+    cidr_block: 10.10.0.0/16
+    resource_tags:
+      Name: apache
+    subnets:
+      - cidr: 10.10.1.0/24
+        az: "{{ aws_region }}b"
+        resource_tags: { "Name": "apache_1b" }
+    internet_gateway: True
+    route_tables:
+      - subnets:
+        - 10.10.1.0/24
+        routes:
+          - dest: 0.0.0.0/0
+            gw: igw
+        resource_tags:
+          Name: apache
+  register: aws_vpc
+
+- name: create basic AWS security groups
+  ec2_group:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_access_key }}"
+    region: "{{ aws_region }}"
+    state: present
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    vpc_id: "{{ aws_vpc.vpc_id }}"
+    purge_rules: False
+    purge_rules_egress: False
+  register: aws_security_groups
+  with_items: "{{ aws_security_groups_vars }}"
+
+- name: create complex AWS security groups
+  ec2_group:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_access_key }}"
+    region: "{{ aws_region }}"
+    state: present
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    vpc_id: "{{ aws_vpc.vpc_id }}"
+    purge_rules: True
+    purge_rules_egress: False
+    rules: "{{ item.rules }}"
+  register: aws_security_groups
+  with_items: "{{ aws_security_groups_vars }}"
+
+- name: apache key pair
+  ec2_key:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_access_key }}"
+    region: "{{ aws_region }}"
+    state: present
+    name: apache
+    key_material: "{{ item }}"
+  with_file: apache_rsa.pub
+  register: aws_key_pairs
+
+- name: Create IAM role with custom trust relationship
+  iam:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_access_key }}"
+    name: "{{ item.name }}"
+    iam_type: role
+    state: present
+  register: aws_iam_roles
+  with_items: "{{ aws_iam_roles_vars }}"

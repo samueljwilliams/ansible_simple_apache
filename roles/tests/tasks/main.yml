@@ -1,0 +1,27 @@
+---
+
+- name: Check if port 22 is open
+  wait_for:
+    host={{ inventory_hostname }}
+    port=22
+    timeout=5
+
+- name: Check if port 80 is open
+  wait_for:
+    host={{ inventory_hostname }}
+    port=80
+    timeout=5
+
+
+- stat: path=/var/www/html
+  register: p
+
+- assert:
+    that:
+      - p.stat.exists and p.stat.isdir
+
+- action: uri url=http://{{inventory_hostname}} return_content=yes
+  register: webpage
+
+- fail: msg='Website content changed'
+  when: "'Automation for the People' not in webpage.content"

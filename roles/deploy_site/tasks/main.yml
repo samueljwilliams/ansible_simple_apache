@@ -1,0 +1,9 @@
+---
+
+- name: Deploy simple html page to apache
+  template: >
+      src="index.html"
+      dest=/var/www/html/index.html
+      owner=apache
+      group=apache
+      mode=0644
