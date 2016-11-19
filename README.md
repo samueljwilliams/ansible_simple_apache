@@ -4,23 +4,25 @@ This is an Ansible (2.1.1) to provision a simple web server, configure it, and d
 It assumes:
 - You have an AWS account
 - You have AWS credential keys
-- You have said AWS credential keys in your ~/.boto file, under the "apache" profile
-- -  ```
-     [profile apache]
-     output = json
-     region = "{{ aws_region }}"
-     aws_access_key_id = abc123
-     aws_secret_access_key = 123abc
-     ```
 - You have Ansible installed locally
 - You have a public key generated
 - You add your public key added to roles/aws_setup/files/apache_rsa.pub
-- You create a file in vars/secrets.yml with the following:
-- - ```
-    ---
-    aws_api_access_key: accesskey
-    aws_api_secret_access_key: secretacesskey
-    ```
+
+You have said AWS credential keys in your ~/.boto file, under the "apache" profile
+```
+ [profile apache]
+ output = json
+ region = "{{ aws_region }}"
+ aws_access_key_id = abc123
+ aws_secret_access_key = 123abc
+ ```
+
+You create a file in vars/secrets.yml with the following:
+```
+---
+aws_api_access_key: accesskey
+aws_api_secret_access_key: secretacesskey
+```
 
 How to use
 ----------
