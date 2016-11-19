@@ -1,0 +1,17 @@
+---
+
+- hosts: tag_Name_apache
+  vars_files:
+    - vars/secrets.yml
+  become: True
+  roles:
+    - role: apache
+    - role: deploy_site
+    - role: tests
+  post_tasks:
+    - name: start services
+      service: >
+        name="{{ item }}"
+        state=started
+      with_items:
+        - httpd
