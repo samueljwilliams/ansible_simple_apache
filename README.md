@@ -32,7 +32,6 @@ To use a different region, modify the group variables at ./inventories/group_var
 
 ```
 aws_region: us-west-2
-
 ```
 
 Run the setup script
